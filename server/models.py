@@ -28,13 +28,13 @@ class Restaurant(db.Model):
     __tablename__ = 'restaurants'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, unique=True)
+    name = db.Column(db.String)
     address = db.Column(db.String)
 
     restaurant_pizzas = db.relationship('RestaurantPizza', back_populates='restaurant')
 
     @validates('name')
-    def name_validation(self, key, name):
+    def name_validation(self, key, res_name):
         """
         Validate the name of the restaurant.
 
@@ -48,13 +48,13 @@ class Restaurant(db.Model):
 
         names = db.session.query(Restaurant.name).all()
 
-        if name in names:
+        if res_name in names:
             raise ValueError('Name must be unique')
 
-        if len(name) > 50:
+        if len(res_name) > 50:
             raise ValueError('Name must less than 50 characters in length')
 
-        return name
+        return res_name
 
     def __repr__ (self):
         return f'<Restaurant: Name: {self.name} Address: {self.address}>'
@@ -115,7 +115,7 @@ class RestaurantPizza(db.Model):
     restaurant = db.relationship('Restaurant', back_populates='restaurant_pizzas')
 
     @validates('price')
-    def price_validation(self, key, price):
+    def price_validation(self, key, rp_price):
         """
         Validate the price of the restaurant pizza.
 
@@ -127,9 +127,9 @@ class RestaurantPizza(db.Model):
             ValueError: If the price is not within the range [1, 30].
         """
 
-        if price not in range(1, 31):
+        if rp_price not in range(1, 31):
             raise ValueError('Price must be between 1 and 30')
-        return price
+        return rp_price
 
     def __repr__ (self):
         return (

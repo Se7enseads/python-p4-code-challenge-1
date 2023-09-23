@@ -41,10 +41,10 @@ class Restaurants(Resource):
             List[dict]: A list of restaurant data.
         """
 
-        pizzas = Restaurant.query.all()
+        restaurants = Restaurant.query.all()
 
         restaurants_data = []
-        for restaurant in pizzas:
+        for restaurant in restaurants:
             restaurant_data = {
                 'id': restaurant.id,
                 'name': restaurant.name,
@@ -52,7 +52,7 @@ class Restaurants(Resource):
             }
             restaurants_data.append(restaurant_data)
 
-        return restaurants_data
+        return restaurants_data, 200
 
 
 api.add_resource(Restaurants, '/restaurants')
@@ -93,7 +93,7 @@ class RestaurantByID(Resource):
                 ]
             }
 
-            return restaurant_body
+            return restaurant_body, 200
 
         return {
             "error": "Restaurant not found"
@@ -125,7 +125,7 @@ class RestaurantByID(Resource):
         db.session.delete(restaurant)
         db.session.commit()
 
-        return {}, 200
+        return '', 204
 
 
 api.add_resource(RestaurantByID, '/restaurants/<int:num>')
@@ -157,7 +157,7 @@ class Pizzas(Resource):
             }
             pizzas_data.append(restaurant_data)
 
-        return pizzas_data
+        return pizzas_data, 200
 
 
 api.add_resource(Pizzas, '/pizzas')
