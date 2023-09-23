@@ -1,20 +1,17 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import validates
 
 db = SQLAlchemy()
 
-class Restaurant(db.Model, SerializerMixin):
+class Restaurant(db.Model):
 
     __tablename__ = 'restaurants'
-
-    serialize_rules = '-restaurant_pizzas.restaurant'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True)
     address = db.Column(db.String)
 
-    restaurant_pizzas = db.relationship('RestaurantPizzas', backref='restaurant')
+    restaurant_pizzas = db.relationship('RestaurantPizza', back_populates='restaurant')
 
     @validates('name')
     def name_validation(self, key, name):
@@ -31,11 +28,9 @@ class Restaurant(db.Model, SerializerMixin):
     def __repr__ (self):
         return f'<Restaurant: Name: {self.name} Address: {self.address}>'
 
-class Pizza(db.Model, SerializerMixin):
+class Pizza(db.Model):
 
     __tablename__ = 'pizzas'
-
-    serialize_rules = '-restaurant_pizzas.pizza'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -43,16 +38,14 @@ class Pizza(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
-    restaurant_pizzas = db.relationship('RestaurantPizzas', backref='pizza')
+    restaurant_pizzas = db.relationship('RestaurantPizza', back_populates='pizza')
 
     def __repr__ (self):
         return f'<Pizza: Name: {self.name} Ingredients: {self.ingredients}>'
 
-class RestaurantPizzas(db.Model, SerializerMixin):
+class RestaurantPizza(db.Model):
 
     __tablename__ = 'restaurant_pizzas'
-
-    serialize_rules = ('-restaurant.restaurant_pizzas', 'pizza.restaurant_pizzas')
 
     id = db.Column(db.Integer, primary_key=True)
     pizza_id = db.Column(db.Integer, db.ForeignKey('pizzas.id'))
@@ -61,6 +54,9 @@ class RestaurantPizzas(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
+    pizza = db.relationship('Pizza', back_populates='restaurant_pizzas')
+    restaurant = db.relationship('Restaurant', back_populates='restaurant_pizzas')
+
     @validates('price')
     def price_validation(self, key, price):
         if price not in range(1, 31):
@@ -68,7 +64,7 @@ class RestaurantPizzas(db.Model, SerializerMixin):
         return price
 
     def __repr__ (self):
-            return (
-                f'<RestaurantPizzas: Pizza_id: {self.pizza_id}' 
-                f'Restaurant_id: {self.restaurant_id} Price: {self.price}>'
-            )
+        return (
+            f'<RestaurantPizza: Pizza_id: {self.pizza_id}' 
+            f'Restaurant_id: {self.restaurant_id} Price: {self.price}>'
+        )
