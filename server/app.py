@@ -99,5 +99,38 @@ class Pizzas(Resource):
 api.add_resource(Pizzas, '/pizzas')
 
 
+class RestaurantPizzas(Resource):
+    def post(self):
+        data = request.get_json()
+
+        pizza = Pizza.query.get(data['pizza_id'])
+        restaurant = Restaurant.query.get(data['restaurant_id'])
+
+        if not pizza or not restaurant:
+            return {
+                "errors": ["Pizza or Restaurant not found"]
+            }, 404
+
+        new_restaurant_pizza = RestaurantPizza(
+            price=data['price'],
+            pizza_id=data['pizza_id'],
+            restaurant_id=data['restaurant_id']
+        )
+
+        db.session.add(new_restaurant_pizza)
+        db.session.commit()
+
+        response_body = {
+            "id": new_restaurant_pizza.pizza.id,
+            "name": new_restaurant_pizza.pizza.name,
+            "ingredients": new_restaurant_pizza.pizza.ingredients
+        }
+
+        return response_body, 201
+
+
+api.add_resource(RestaurantPizzas, '/restaurant_pizzas')
+
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
