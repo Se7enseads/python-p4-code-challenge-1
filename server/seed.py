@@ -46,7 +46,7 @@ with app.app_context():
     restaurants = []
     for i in range(20):
         restaurant = Restaurant(
-            name = fake.unique.company(),
+            name = fake.unique.company()[:50],
             address = fake.unique.address()[:14]
         )
         restaurants.append(restaurant)
