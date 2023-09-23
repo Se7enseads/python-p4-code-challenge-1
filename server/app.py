@@ -1,3 +1,15 @@
+"""
+This Flask application is designed for managing restaurants and pizzas.
+
+Database Models:
+    The application uses the following SQLAlchemy database models:
+
+    - `Restaurant`: Represents restaurant information, including name and address.
+    - `Pizza`: Represents pizza information, including name and ingredients.
+    - `RestaurantPizza`: Represents the association between restaurants and pizzas,
+                         including the price.
+"""
+
 from flask import Flask, request
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
@@ -15,7 +27,20 @@ api = Api(app)
 
 
 class Restaurants(Resource):
+    """
+    Resource for retrieving restaurant data.
+
+    Provides endpoints for listing all restaurants.
+    """
+
     def get(self):
+        """
+        Get a list of all restaurants.
+
+        Returns:
+            List[dict]: A list of restaurant data.
+        """
+
         pizzas = Restaurant.query.all()
 
         restaurants_data = []
@@ -34,7 +59,23 @@ api.add_resource(Restaurants, '/restaurants')
 
 
 class RestaurantByID(Resource):
+    """
+    Resource for retrieving and deleting restaurant data by ID.
+
+    Provides endpoints for getting restaurant details and deleting a restaurant.
+    """
+
     def get(self, num):
+        """
+        Get details of a restaurant by ID.
+
+        Args:
+            num (int): The ID of the restaurant to retrieve.
+
+        Returns:
+            dict: Restaurant details including associated pizzas.
+        """
+
         restaurant = Restaurant.query.filter(Restaurant.id == num).first()
 
         if restaurant:
@@ -59,6 +100,16 @@ class RestaurantByID(Resource):
         }, 404
 
     def delete(self, num):
+        """
+        Delete a restaurant by ID.
+
+        Args:
+            num (int): The ID of the restaurant to delete.
+
+        Returns:
+            dict: Empty response.
+        """
+
         restaurant = Restaurant.query.filter(Restaurant.id == num).first()
         restaurant_pizza = RestaurantPizza.query.filter(
             RestaurantPizza.restaurant_id == num).first()
@@ -81,7 +132,20 @@ api.add_resource(RestaurantByID, '/restaurants/<int:num>')
 
 
 class Pizzas(Resource):
+    """
+    Resource for retrieving pizza data.
+
+    Provides an endpoint for listing all pizzas.
+    """
+
     def get(self):
+        """
+        Get a list of all pizzas.
+
+        Returns:
+            List[dict]: A list of pizza data.
+        """
+
         pizzas = Pizza.query.all()
 
         pizzas_data = []
@@ -100,7 +164,20 @@ api.add_resource(Pizzas, '/pizzas')
 
 
 class RestaurantPizzas(Resource):
+    """
+    Resource for creating restaurant pizzas.
+
+    Provides an endpoint for creating restaurant pizza entries.
+    """
+
     def post(self):
+        """
+        Create a new restaurant pizza entry.
+
+        Returns:
+            dict: Restaurant pizza details.
+        """
+
         data = request.get_json()
 
         pizza = Pizza.query.get(data['pizza_id'])
